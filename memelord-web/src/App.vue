@@ -35,8 +35,8 @@ label {
 }
 
 #img1 {
-  width: 250px;
-  height: 250px;
+  width: 220px;
+  height: 220px;
 }
 #img2 {
   width: 100px;

@@ -41,9 +41,16 @@ export default {
       }
       const error = await this.$store.dispatch("doRegister", userData);
       if (error) {
-        console.log(error); //swal error disini
+        swal({
+          title: "Error",
+          text: error,
+          icon: "error",
+        });
       } else {
-        //swal success here
+        swal({
+          title: "Register Success",
+          icon: "success",
+        });
         this.$router.push("/login");
       }
     },

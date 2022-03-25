@@ -55,10 +55,17 @@ export default {
       this.srcUrl = url;
     },
     async sendToAPI() {
-      if (!this.text1 || !this.text0) {
-        console.log("please input text");
+      //still fail (CORS)
+      if (!this.text1 && !this.text0) {
+        swal({
+          title: "please input text",
+          icon: "info",
+        });
       } else if (!this.templateId) {
-        console.log("please choose the template");
+        swal({
+          title: "please choose the template",
+          icon: "info",
+        });
       } else {
         let option = {
           template_id: this.templateId,
@@ -69,7 +76,6 @@ export default {
         };
         const data = await this.$store.dispatch("fetchPreview", option);
         this.srcUrl = data;
-        console.log(data); //testing, still fail
       }
     },
   },

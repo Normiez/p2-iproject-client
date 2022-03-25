@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container container2">
     <ul class="nav nav-tabs">
       <li class="nav-item me-2">
         <router-link to="/newpost/mememaker">
@@ -24,3 +24,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.container2 {
+  min-height: 75vh;
+}
+</style>

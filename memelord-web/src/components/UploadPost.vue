@@ -52,10 +52,17 @@ export default {
       const error = await this.$store.dispatch("UploadImage", data);
       if (!error) {
         this.$router.push("/");
+        swal({
+          title: "Upload Success",
+          icon: "success",
+        });
       } else {
-        console.log(error);
+        swal({
+          title: "Upload Fail",
+          text: "Please relogin and try again",
+          icon: "error",
+        });
       }
-      //swal succes here
     },
     upload(event) {
       this.imgData = event.target.files[0];

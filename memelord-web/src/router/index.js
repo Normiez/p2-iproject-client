@@ -54,4 +54,20 @@ const router = new VueRouter({
   routes,
 });
 
+router.beforeEach((to, from, next) => {
+  const accessToken = localStorage.getItem("access_token");
+  const publicPage = ["home", "Register", "Login", "showdetail"];
+  const afterLogin = ["Login", "Register"];
+  const isAfterLogin = afterLogin.includes(to.name);
+  const isPublicPage = publicPage.includes(to.name);
+
+  if (!accessToken && !isPublicPage) {
+    next(from.path);
+  } else if (accessToken && isAfterLogin) {
+    next(from.path);
+  } else {
+    next();
+  }
+});
+
 export default router;

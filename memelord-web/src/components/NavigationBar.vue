@@ -3,7 +3,9 @@
     <div class="container">
       <nav class="d-flex justify-content-between text-white mb-3">
         <div class="card-header">
-          <SideBarTab></SideBarTab>
+          <router-link to="/">
+            <button class="btn btn-dark mb-3 form-control">🏡 Home</button>
+          </router-link>
         </div>
         <div class="card-header">
           <h3>𝕄𝔼𝕄𝔼𝕃𝕆ℝ𝔻</h3>
@@ -40,20 +42,21 @@
 </template>
 
 <script>
-import SideBarTab from "@/components/SideBarTab.vue";
 export default {
   name: "NavigationBar",
   methods: {
     async doLogout() {
       const error = await this.$store.dispatch("doLogout");
       if (error) {
-        console.log(error); //swal error disini
+        swal({
+          title: "Logout fail",
+          text: "please try again",
+          icon: "error",
+        });
       }
     },
   },
-  components: {
-    SideBarTab,
-  },
+  components: {},
   computed: {
     isLogin() {
       return this.$store.state.isLogin;

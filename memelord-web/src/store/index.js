@@ -3,11 +3,15 @@ import Vuex from "vuex";
 import axios from "@/api/axios";
 import meme from "@/api/imgFlip";
 import prev from "@/api/imgFlipPrev";
+import swal from 'sweetalert';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    search: "",
+    category: "",
+    pageNumber: 1,
     postId: 0,
     postDetail: [],
     imgFlipAPI: [],
@@ -46,6 +50,18 @@ export default new Vuex.Store({
     },
     POST_ID(state, data) {
       state.postId = data;
+    },
+    COMMIT_SEARCH(state, data) {
+      state.search = data;
+    },
+    COMMIT_CATEGORY(state, data) {
+      state.category = data;
+    },
+    COMMIT_PAGE_MIN(state) {
+      state.pageNumber--;
+    },
+    COMMIT_PAGE_PLUS(state) {
+      state.pageNumber++;
     },
   },
   actions: {
@@ -105,16 +121,51 @@ export default new Vuex.Store({
         return error.response.data.message;
       }
     },
+    async filter(context, filterData) {
+      try {
+        const { search, category, page } = filterData;
+        let option = {};
+        if (search && category) {
+          option = {
+            category: category,
+            search: search,
+            page: page,
+          };
+        } else if (!search && category) {
+          option = { category: category, page: page };
+        } else if (search && !category) {
+          option = { search: search, page: page };
+        } else {
+          option = { page: page };
+        }
+        const { data } = await axios({
+          method: "get",
+          url: "/meme/post/",
+          params: option,
+        });
+        context.commit("COMMIT_CATEGORY", category);
+        context.commit("COMMIT_SEARCH", search);
+        context.commit("FETCH_POST", data);
+      } catch (error) {
+        swal({
+          title: "Error",
+          text: error.response.data.message,
+          icon: "error",
+        });
+      }
+    },
     async fetchPreview(context, option) {
       try {
         const { data } = await prev({
           method: "post",
           data: option,
         });
-        console.log(data, "<<<<<<<<<<<<<<");
         context.commit("COMMIT_PREVIEW", data.url);
       } catch (error) {
-        console.log(error);
+        swal({
+          title: "Preview Error",
+          icon: "error",
+        });
       }
     },
     async fetchAPI(context) {
@@ -144,12 +195,12 @@ export default new Vuex.Store({
         method: "get",
         url: `/meme/post/${postId}`,
       });
-      console.log(data);
       context.commit("POST_DETAIL", data);
+      context.commit("POST_ID", postId);
     },
-    async doComment(context, comment) {
+    async doComment(context, data) {
       try {
-        const postId = localStorage.postId;
+        const { comment, postId } = data;
         await axios({
           method: "post",
           url: `/meme/post/${postId}`,
@@ -164,22 +215,67 @@ export default new Vuex.Store({
         return error;
       }
     },
+    async doDeleteComment(context, id) {
+      try {
+        await axios({
+          method: "delete",
+          url: "/meme/comment",
+          data: {
+            commentId: id,
+          },
+          headers: {
+            access_token: localStorage.access_token,
+          },
+        });
+      } catch (error) {
+        return error;
+      }
+    },
     async editComment(context, payload) {
       try {
-        const postId = localStorage.getItem("postId");
-        const { comment, commentId } = payload;
-        const respond = await axios({
+        const { comment, commentId, postId } = payload;
+        await axios({
           method: "patch",
           url: `/meme/post/${postId}`,
           data: {
-            comment,
-            commentId,
+            comment: comment,
+            commentId: commentId,
           },
           headers: { access_token: localStorage.access_token },
         });
-        console.log(respond);
       } catch (error) {
-        console.log(error);
+        return error;
+      }
+    },
+    async updateCaption(context, payload) {
+      try {
+        const { caption, categoryId, postId } = payload;
+        await axios({
+          method: "patch",
+          url: `/meme/post/${postId}/edit`,
+          data: {
+            caption: caption,
+            categoryId: categoryId,
+          },
+          headers: {
+            access_token: localStorage.access_token,
+          },
+        });
+      } catch (error) {
+        return error;
+      }
+    },
+    async deleteMemes(context, postId) {
+      try {
+        await axios({
+          method: "delete",
+          url: `/meme/post/${postId}/delete`,
+          headers: {
+            access_token: localStorage.access_token,
+          },
+        });
+      } catch (error) {
+        return error;
       }
     },
     async UploadImage(context, data) {

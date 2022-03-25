@@ -1,5 +1,6 @@
 <template>
   <div class="bg-black text-white">
+    <PaginationTop class="d-flex justify-content-evenly"></PaginationTop>
     <div class="row mb-5" v-for="item in postData" :key="item.id">
       <div class="col-3">
         <h2 v-html="item.caption"></h2>
@@ -19,6 +20,7 @@
 </template>
 
 <script>
+import PaginationTop from "@/components/Pagination.vue";
 export default {
   name: "PostSection",
   methods: {
@@ -26,6 +28,9 @@ export default {
       this.$store.commit("POST_ID", postId);
       localStorage.postId = postId;
     },
+  },
+  components: {
+    PaginationTop,
   },
   computed: {
     postData() {

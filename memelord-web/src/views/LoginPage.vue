@@ -45,7 +45,11 @@ export default {
       if (!error) {
         this.$router.push("/");
       } else {
-        console.log(error); //swal error disini
+        swal({
+          title: "Error",
+          text: error,
+          icon: "error",
+        });
       }
     },
   },

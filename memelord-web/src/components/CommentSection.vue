@@ -8,25 +8,38 @@
       ></textarea>
       <button type="submit" class="btn btn-dark">Comment</button>
     </form>
-    <div class="container-sm mt-3">
+    <div class="container-sm mt-3" v-if="commentData.length > 0">
       <h2>Comment Section</h2>
       <div v-for="item in commentData" :key="item.id">
         <div>
-          <h6>By: {{ item.User.username }}</h6>
+          <h6>{{ item.User.username }}</h6>
         </div>
         <div>
           <p>comment: {{ item.comment }}</p>
         </div>
-        <div>
-          <button @click.prevent="activeEdit(item.id)">edit</button>
-          <br />
-          <button @click.prevent="deleteComment(item.id)">delete</button>
+        <div v-if="isLogin && userId == item.UserId" class="row">
+          <div class="col">
+            <button
+              class="btn btn-dark me-3"
+              @click.prevent="activeEdit(item.id)"
+            >
+              edit
+            </button>
+            <button
+              class="btn btn-dark"
+              @click.prevent="deleteComment(item.id)"
+            >
+              delete
+            </button>
+          </div>
         </div>
       </div>
-      <form v-if="this.edit" @submit.prevent="editComment">
-        <textarea v-model="editCommentData" class="form-control"></textarea>
-        <button type="submit">submit</button>
-      </form>
+      <div v-if="this.edit">
+        <form @submit.prevent="editComment">
+          <textarea v-model="editCommentData" class="form-control"></textarea>
+          <button type="submit" class="btn btn-dark">submit</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -40,15 +53,43 @@ export default {
       editCommentData: "",
       edit: false,
       commentId: 0,
+      userId: localStorage.id,
     };
   },
   methods: {
     async Comment() {
-      const error = await this.$store.dispatch("doComment", this.comment);
+      const error = await this.$store.dispatch("doComment", {
+        comment: this.comment,
+        postId: this.postId,
+      });
       if (error) {
-        console.log(error);
+        swal({
+          title: "Comment Fail",
+          icon: "error",
+        });
+      } else {
+        swal({
+          title: "Comment success",
+          icon: "success",
+        });
+        this.comment = "";
+        this.$store.dispatch("fetchPostDetail", this.postId);
       }
-      this.$store.dispatch("fetchPostDetail");
+    },
+    async deleteComment(id) {
+      const error = await this.$store.dispatch("doDeleteComment", id);
+      if (error) {
+        swal({
+          title: "Delete fail",
+          icon: "error",
+        });
+      } else {
+        swal({
+          title: "Comment has been deleted",
+          icon: "success",
+        });
+        this.$store.dispatch("fetchPostDetail", this.postId);
+      }
     },
     activeEdit(id) {
       if (this.edit === true) {
@@ -62,8 +103,22 @@ export default {
       const payload = {
         comment: this.editCommentData,
         commentId: this.commentId,
+        postId: this.postId,
       };
-      await this.$store.dispatch("editComment", payload);
+      const error = await this.$store.dispatch("editComment", payload);
+      if (error) {
+        swal({
+          title: "Edit comment fail",
+          icon: "error",
+        });
+      } else {
+        swal({
+          title: "Edit comment success",
+          icon: "success",
+        });
+        this.edit = false;
+        this.$store.dispatch("fetchPostDetail", this.postId);
+      }
     },
   },
   computed: {
@@ -72,6 +127,9 @@ export default {
     },
     commentData() {
       return this.$store.state.postDetail.comments;
+    },
+    postId() {
+      return this.$store.state.postId;
     },
   },
 };
