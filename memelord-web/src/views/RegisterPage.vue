@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import swal from "sweetalert";
 import ReusableLoginRegisterForm from "@/components/ReusableLoginRegisterForm.vue";
 export default {
   name: "RegisterPage",

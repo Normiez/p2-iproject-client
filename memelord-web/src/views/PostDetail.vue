@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import swal from 'sweetalert';
 import CommentSection from "@/components/CommentSection.vue";
 export default {
   name: "PostDetail",

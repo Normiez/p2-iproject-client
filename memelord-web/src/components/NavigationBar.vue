@@ -42,6 +42,7 @@
 </template>
 
 <script>
+import swal from 'sweetalert';
 export default {
   name: "NavigationBar",
   methods: {
